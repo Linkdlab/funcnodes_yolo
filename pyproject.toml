@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "funcnodes-yolo"
+version = "0.1.0"
+description = ""
+authors = ["Julian Kimmig <julian.kimmig@gmx.net>"]
+readme = "README.md"
+license = "AGPL-3.0"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+ultralytics = "^8.2.2"
+funcnodes-opencv = "^0.1.4"
+opencv-python = "^4.9"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.1.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
