@@ -29,7 +29,6 @@ def yolov8(img: ImageFormat) -> Tuple[ImageFormat, List[str], List[float]]:
     labels = [model.names[i] for i in result.boxes.cls.int().cpu().tolist()]
     annotated_frame = result.plot()
     conf = result.boxes.conf.cpu().numpy().tolist()
-    print(labels, conf)
 
     return (
         funcnodes_opencv.OpenCVImageFormat(annotated_frame),
