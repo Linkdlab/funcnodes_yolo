@@ -13,8 +13,13 @@ funcnodes-opencv = "^0.1.4"
 opencv-python = "^4.9"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.1.1"
+pytest = "*"
+pre-commit = "*"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.plugins."funcnodes.module"]
+module = "funcnodes_yolo"
+shelf = "funcnodes_yolo:NODE_SHELF"
