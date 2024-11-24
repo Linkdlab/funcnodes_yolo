@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 
 import funcnodes_opencv
-from ultralytics import YOLO, checks as ultralytics_checks
+from ultralytics import YOLO
 from funcnodes_images import ImageFormat
 import funcnodes as fn
 
@@ -24,7 +24,7 @@ def yolov8(img: ImageFormat) -> Tuple[ImageFormat, List[str], List[float]]:
     if "yolov8" not in MODELS:
         MODELS["yolov8"] = YOLO("yolov8n.pt")
     model = MODELS["yolov8"]
-    results = model(data, verbose=False)
+    results = model.predict(data, verbose=False)
     result = results[0]
     labels = [model.names[i] for i in result.boxes.cls.int().cpu().tolist()]
     annotated_frame = result.plot()
