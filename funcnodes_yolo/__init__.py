@@ -93,7 +93,7 @@ class YOLOResults:
         return len(self.boxes)
 
     def filter(self, indices: List[int]) -> YOLOResults:
-        return YOLOResults(self._results[indices], self._model)
+        return YOLOResults(self._results[indices], self._model, self._img)
 
     def __iter__(self):
         for i in range(len(self)):
