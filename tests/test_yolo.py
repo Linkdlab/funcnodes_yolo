@@ -4,7 +4,7 @@ import cv2
 import os
 
 
-class TestYolo(unittest.IsolatedAsyncioTestCase):
+class TestYolo(unittest.TestCase):
     def setUp(self) -> None:
         img = cv2.imread(os.path.join(os.path.dirname(__file__), "cat.jpg"))
         self.img = img
@@ -15,7 +15,7 @@ class TestYolo(unittest.IsolatedAsyncioTestCase):
             fy=0.5,
         )
 
-    async def test_model(self):
+    def test_model(self):
         model = funcnodes_yolo.YOLO(model="yolov8n.pt")
         results = model.predict(self.img, verbose=True)
         self.assertEqual(len(results), 1)

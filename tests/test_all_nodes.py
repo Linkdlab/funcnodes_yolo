@@ -42,7 +42,7 @@ class TestAllNodes(TestAllNodesBase):
         )
 
     #  in this test class all nodes should be triggered at least once to mark them as testing
-    async def yolov8(self):
+    async def test_yolov8(self):
         node: fn.Node = funcnodes_yolo.yolov8()
         img = funcnodes_yolo.funcnodes_opencv.OpenCVImageFormat(self.img)
 
