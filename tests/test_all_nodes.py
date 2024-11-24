@@ -50,9 +50,9 @@ class TestAllNodes(TestAllNodesBase):
 
         await node
 
-        labels = node.get_output("labels").value
-        conf = node.get_output("conf").value
-
+        result: funcnodes_yolo.YOLOResults = node.get_output("result").value
+        conf = result.conf
+        labels = result.labels
         maxconf = np.argmax(conf)
 
         self.assertEqual(labels[maxconf], "cat", dict(zip(labels, conf)))
@@ -63,6 +63,72 @@ class TestAllNodes(TestAllNodesBase):
             annotated_img, funcnodes_yolo.funcnodes_opencv.OpenCVImageFormat
         )
 
-        conf = node.get_output("conf").value
         self.assertEqual(len(conf), 1)
         self.assertGreaterEqual(conf[0], 0.75)
+
+    async def test_filter_yolo(self):
+        yolonode: fn.Node = funcnodes_yolo.yolov8()
+        img = funcnodes_yolo.funcnodes_opencv.OpenCVImageFormat(self.img)
+
+        yolonode.get_input("img").value = img
+
+        filternode: fn.Node = funcnodes_yolo.filter_yolo()
+        filternode.get_input("yolo").connect(yolonode.get_output("result"))
+
+        filternode.get_input("labels").value = "cat"
+
+        await fn.run_until_complete(filternode, yolonode)
+
+        positive: funcnodes_yolo.YOLOResults = filternode.get_output("positive").value
+        negative: funcnodes_yolo.YOLOResults = filternode.get_output("negative").value
+
+        self.assertEqual(len(positive), 1)
+        self.assertEqual(len(negative), 0)
+
+        filternode.get_input("conf").value = 1.0
+
+        await filternode
+
+        positive: funcnodes_yolo.YOLOResults = filternode.get_output("positive").value
+        negative: funcnodes_yolo.YOLOResults = filternode.get_output("negative").value
+
+        self.assertEqual(len(positive), 0, positive.conf)
+        self.assertEqual(len(negative), 1)
+
+    async def test_box_params_yolo(self):
+        yolonode: fn.Node = funcnodes_yolo.yolov8()
+        img = funcnodes_yolo.funcnodes_opencv.OpenCVImageFormat(self.img)
+
+        yolonode.get_input("img").value = img
+        await yolonode
+
+        boxnode: fn.Node = funcnodes_yolo.get_box_params()
+        boxnode.get_input("box").value = yolonode.get_output("result").value[0]
+
+        await boxnode
+
+        labels = boxnode.get_output("label").value
+        conf = boxnode.get_output("conf").value
+        x1 = boxnode.get_output("x1").value
+        y1 = boxnode.get_output("y1").value
+        w = boxnode.get_output("w").value
+        h = boxnode.get_output("h").value
+        x2 = boxnode.get_output("x2").value
+        y2 = boxnode.get_output("y2").value
+
+        self.assertEqual(labels, "cat")
+        self.assertGreaterEqual(conf, 0.75)
+        self.assertLessEqual(x1, 350)
+        self.assertLessEqual(y1, 200)
+
+        self.assertGreaterEqual(x2, 700)
+        self.assertGreaterEqual(y2, 1200)
+        self.assertEqual(w, x2 - x1)
+        self.assertEqual(h, y2 - y1)
+
+        img = boxnode.get_output("img").value
+
+        self.assertIsInstance(img, funcnodes_yolo.funcnodes_opencv.OpenCVImageFormat)
+
+        self.assertAlmostEqual(img.width(), w, delta=1)
+        self.assertAlmostEqual(img.height(), h, delta=1)
