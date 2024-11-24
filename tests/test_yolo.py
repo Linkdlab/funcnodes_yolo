@@ -21,8 +21,6 @@ class TestYolo(unittest.TestCase):
         self.assertEqual(len(results), 1)
         result = results[0]
 
-        print(result.boxes)
-
         labels = [result.names[i] for i in result.boxes.cls.int().cpu().tolist()]
         self.assertEqual(len(result.boxes), 1)
         self.assertEqual(labels, ["cat"])
